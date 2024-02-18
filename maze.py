@@ -118,6 +118,7 @@ class Wall(GameSprite):
         walls.add(self)
 
 player = Player(player_img, TILESIZE, TILESIZE, 300, 300)
+treasure = None
 
 with open("map.txt", "r") as file:
     x,y = 0,0
@@ -133,7 +134,7 @@ with open("map.txt", "r") as file:
                 player.rect.y = y
                 player.start_x, player.start_y = x,y
             elif symbol == "T":
-                GameSprite(treasure_img, TILESIZE, TILESIZE, x,y)
+                treasure = GameSprite(treasure_img, TILESIZE, TILESIZE, x,y)
             x += TILESIZE
         y+= TILESIZE
         x = 0
@@ -156,6 +157,9 @@ while True:
     window.blit(hp_text, (10,10))
     if player.hp <= 0:
         finish = True
+    if sprite.collide_rect(player, treasure):
+        finish = True
+        finish_text = font2.render("YOU WIN!", True, (0,255,100))
     if finish:
         window.blit(finish_text, (300,250))
     display.update()
