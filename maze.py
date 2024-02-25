@@ -16,9 +16,9 @@ font2 = font.SysFont("Arial", 50)
 
 
 
-mixer.music.load("jungles.ogg")
-mixer.music.set_volume(0.2)
-mixer.music.play(loops=-1)
+#mixer.music.load("jungles.ogg")
+#mixer.music.set_volume(0.2)
+#mixer.music.play(loops=-1)
 
 #kick_sound = mixer.Sound('kick.ogg')
 #kick_sound.play()
@@ -27,12 +27,15 @@ mixer.music.play(loops=-1)
 display.set_caption("Лабіринт")
 clock = time.Clock() #Стоворюємо ігровий таймер
 #задай фон сцени
-bg = image.load("background.jpg")
+bg = image.load("bulkhead-wallsx1.png")
 bg = transform.scale(bg, (WIDTH, HEIGHT))
-player_img = image.load('hero.png')
-enemy_img = image.load('cyborg.png')
+player_img = image.load('sprites (1).png')
+enemy_img = image.load('Spr_EnemyWalk_strip19 (2).png')
 wall_img = image.load('wall.png')
-treasure_img = image.load('treasure.png')
+treasure_img = image.load('Castle2 (1).png')
+fountain_img = image.load('tiles_tiny_sample_2__1_-removebg-preview.png')
+bridge_img = image.load('Castle2 (3).png')
+lamp_img = image.load('Castle2 (4).png')
 
 #створи 2 спрайти та розмісти їх на сцені
 sprites = sprite.Group()
@@ -40,6 +43,7 @@ class GameSprite(sprite.Sprite):
     def __init__(self, sprite_image, width, height, x, y):
         super().__init__()
         self.image = transform.scale(sprite_image, (width, height))
+        self.original = self.image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -63,12 +67,15 @@ class Player(GameSprite):
 
         keys = key.get_pressed()
         if keys[K_w] and self.rect.y > 0:
+            
             self.rect.y -= self.speed
         if keys[K_s] and self.rect.bottom < HEIGHT:
             self.rect.y += self.speed
         if keys[K_a] and self.rect.left > 0:
+            self.image = transform.flip(self.original,True,False)
             self.rect.x -= self.speed
         if keys[K_d] and self.rect.right < WIDTH:
+            self.image = self.original
             self.rect.x += self.speed
 
         collidelist = sprite.spritecollide(self, walls, False)
@@ -88,6 +95,7 @@ enemys = sprite.Group()
 class Enemy(GameSprite):
     def __init__(self, x, y):
         super().__init__(enemy_img,TILESIZE, TILESIZE, x, y)
+        self.original = self.image
         self.hp = 100
         self.damage = 20
         self.speed = 5
@@ -98,8 +106,10 @@ class Enemy(GameSprite):
     def update(self):
         self.old_pos = self.rect.x, self.rect.y
         if self.dir == 'right':
+            self.image = self.original
             self.rect.x += self.speed
         elif self.dir == 'left':
+            self.image = transform.flip(self.original,True,False)
             self.rect.x -= self.speed
         elif self.dir == 'up':
             self.rect.y -= self.speed
@@ -135,6 +145,12 @@ with open("map.txt", "r") as file:
                 player.start_x, player.start_y = x,y
             elif symbol == "T":
                 treasure = GameSprite(treasure_img, TILESIZE, TILESIZE, x,y)
+            elif symbol == "F":
+                treasure = GameSprite(fountain_img, TILESIZE, TILESIZE, x,y)
+            elif symbol == "B":
+                treasure = GameSprite(bridge_img, TILESIZE, TILESIZE, x,y)
+            elif symbol == "L":
+                treasure = GameSprite(lamp_img, TILESIZE, TILESIZE, x,y)
             x += TILESIZE
         y+= TILESIZE
         x = 0
